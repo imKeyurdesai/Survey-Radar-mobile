@@ -1,10 +1,10 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { getItemAsync } from './../utils/storage';
 import { Platform } from 'react-native';
 
-// For Android emulator to access local backend, use 10.0.2.2. For iOS simulator, use localhost.
-// Replace with your actual local IP address for physical devices.
-const BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5000/api' : 'http://localhost:5000/api';
+// Use EXPO_PUBLIC_API_URL for production deployments (set in Expo dashboard or EAS)
+// Fallback to local Wi-Fi IP address for local physical device testing
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.151.207.249:5000/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -15,7 +15,7 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   try {
-    const token = await SecureStore.getItemAsync('token');
+    const token = await getItemAsync('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

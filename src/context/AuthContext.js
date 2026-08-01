@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import { getItemAsync, setItemAsync, deleteItemAsync } from '../utils/storage';
 import api from '../services/api';
+
+import { registerForPushNotificationsAsync } from '../services/notificationService';
 
 const AuthContext = createContext();
 
@@ -13,11 +15,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const token = await SecureStore.getItemAsync('token');
-        const storedUser = await SecureStore.getItemAsync('user');
+        const token = await getItemAsync('token');
+        const storedUser = await getItemAsync('user');
         
         if (token && storedUser) {
           setUser(JSON.parse(storedUser));
+          // Register for push notifications since we have a valid session
+          registerForPushNotificationsAsync();
         }
       } catch (error) {
         console.log('Failed to load user info', error);
@@ -33,9 +37,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.post('/auth/login', { email, password });
       const { data } = res.data;
-      await SecureStore.setItemAsync('token', data.token);
-      await SecureStore.setItemAsync('user', JSON.stringify(data));
+      await setItemAsync('token', data.token);
+      await setItemAsync('user', JSON.stringify(data));
       setUser(data);
+      registerForPushNotificationsAsync();
       return { success: true };
     } catch (err) {
       return { 
@@ -49,8 +54,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.post('/auth/register', { name, email, password });
       const { data } = res.data;
-      await SecureStore.setItemAsync('token', data.token);
-      await SecureStore.setItemAsync('user', JSON.stringify(data));
+      await setItemAsync('token', data.token);
+      await setItemAsync('user', JSON.stringify(data));
       setUser(data);
       return { success: true };
     } catch (err) {
@@ -63,8 +68,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await SecureStore.deleteItemAsync('token');
-      await SecureStore.deleteItemAsync('user');
+      await deleteItemAsync('token');
+      await deleteItemAsync('user');
       setUser(null);
     } catch (error) {
       console.log('Logout error', error);
