@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking } from 'react-native';
 import api from '../services/api';
 import { Activity, Database, Users, Clock } from 'lucide-react-native';
 
@@ -38,6 +38,47 @@ export const DashboardScreen = ({ route }) => {
   };
 
   const onlineWorkers = workers.filter(w => w.status === 'online').length;
+
+  const getRelativeTime = (dateString) => {
+    const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+    if (seconds < 60) return `${seconds} seconds ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hours ago`;
+    return `${Math.floor(hours / 24)} days ago`;
+  };
+
+  const getBorderColor = (rewardStr, timeStr) => {
+    if (!rewardStr || !timeStr) return 'rgba(255,255,255,0.05)';
+    
+    let rewardValue = 0;
+    const rewardMatch = rewardStr.match(/[\d.]+/);
+    if (rewardMatch) rewardValue = parseFloat(rewardMatch[0]);
+    
+    let cents = 0;
+    if (rewardStr.includes('$') || rewardStr.includes('£') || rewardStr.includes('€') || rewardStr.includes('.')) {
+      cents = rewardValue * 100;
+    } else {
+      cents = rewardValue;
+    }
+    
+    const timeMatch = timeStr.match(/\d+/);
+    if (!timeMatch) return 'rgba(255,255,255,0.05)';
+    const minutes = parseInt(timeMatch[0], 10);
+    
+    if (minutes === 0) return 'rgba(255,255,255,0.05)';
+    
+    const ratio = cents / minutes;
+    
+    if (ratio > 2.5) {
+      return '#EF4444'; // Red
+    } else if (ratio >= 1.5) {
+      return '#EAB308'; // Yellow
+    } else {
+      return 'rgba(255,255,255,0.05)'; // Default
+    }
+  };
 
   return (
     <ScrollView 
@@ -78,16 +119,20 @@ export const DashboardScreen = ({ route }) => {
           <Text style={styles.emptyText}>No surveys detected yet</Text>
         ) : (
           surveys.map(survey => (
-            <View key={survey._id} style={styles.surveyCard}>
+            <TouchableOpacity 
+              key={survey._id} 
+              style={[styles.surveyCard, { borderColor: getBorderColor(survey.reward, survey.estimatedTime) }]}
+              onPress={() => Linking.openURL('https://attapoll.app/').catch(() => console.log('Could not open AttaPoll'))}
+            >
               <View style={{ flex: 1 }}>
                 <Text style={styles.surveyTitle}>{survey.title}</Text>
                 <Text style={styles.surveyMeta}>{survey.provider} • {survey.estimatedTime}</Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={styles.surveyReward}>{survey.reward}</Text>
-                <Text style={styles.surveyTime}>{new Date(survey.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</Text>
+                <Text style={styles.surveyTime}>{getRelativeTime(survey.createdAt)}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))
         )}
       </View>
