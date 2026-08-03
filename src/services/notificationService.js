@@ -4,26 +4,17 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import api from './api';
 
-try {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
-} catch (error) {
-  console.log('Failed to set notification handler (expected in Expo Go SDK 53+ Android)', error);
-}
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export async function registerForPushNotificationsAsync() {
   let token;
-
-  // SDK 53: Push notifications are entirely removed from Expo Go on Android
-  if (Constants.appOwnership === 'expo' && Platform.OS === 'android') {
-    console.log('Push notifications are not supported in Expo Go on Android (SDK 53+). Please create a development build to test notifications.');
-    return null;
-  }
 
   try {
     if (Platform.OS === 'android') {
@@ -49,8 +40,14 @@ export async function registerForPushNotificationsAsync() {
         return null;
       }
 
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+      if (!projectId) {
+        console.log('Project ID not found in config');
+        return null;
+      }
+
       token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+      console.log('Expo Push Token:', token);
       
       // Send token to backend
       await api.post('/device/register', {
@@ -67,3 +64,4 @@ export async function registerForPushNotificationsAsync() {
 
   return token;
 }
+
