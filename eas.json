@@ -13,7 +13,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK": "1"
+        "EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK": "1",
+        "EXPO_PUBLIC_API_URL": "https://survey-radar-api.onrender.com/api"
       }
     },
     "production": {}
