@@ -1,7 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking, Animated } from 'react-native';
 import api from '../services/api';
-import { Activity, Database, Users, Clock } from 'lucide-react-native';
+import { Activity, Database, Users, Clock, ChevronDown, ChevronUp } from 'lucide-react-native';
+
+const RainbowName = ({ name, textStyle }) => {
+  const animatedValue = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.timing(animatedValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: false,
+      })
+    ).start();
+  }, [animatedValue]);
+
+  const borderColor = animatedValue.interpolate({
+    inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+    outputRange: ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#ff0000']
+  });
+
+  return (
+    <Animated.View style={{
+      borderWidth: 2,
+      borderColor,
+      backgroundColor: '#FFF8DC',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+      alignSelf: 'flex-start',
+      marginBottom: 4,
+      shadowColor: '#FFD700',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.8,
+      shadowRadius: 10,
+      elevation: 5
+    }}>
+      <Text style={[textStyle, { color: '#B8860B', marginBottom: 0, fontWeight: '900', textShadowColor: 'rgba(255, 215, 0, 0.5)', textShadowOffset: {width: 0, height: 0}, textShadowRadius: 4 }]}>🌟 {name} 🌟</Text>
+    </Animated.View>
+  );
+};
 
 export const DashboardScreen = ({ route }) => {
   const { projectId } = route.params;
@@ -9,6 +48,7 @@ export const DashboardScreen = ({ route }) => {
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isWorkersExpanded, setIsWorkersExpanded] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -80,6 +120,31 @@ export const DashboardScreen = ({ route }) => {
     }
   };
 
+  const hasMultipleWorkers = workers.length > 1;
+  
+  const getDisplayedWorkers = () => {
+    if (isWorkersExpanded) {
+      return workers;
+    }
+    const onlineWorkersList = workers.filter(w => w.status === 'online');
+    if (onlineWorkersList.length > 0) {
+      return [onlineWorkersList[0]];
+    }
+    return workers.length > 0 ? [workers[0]] : [];
+  };
+
+  const renderWorkerName = (worker) => {
+    const defaultName = `Worker: ${worker.workerId.substring(0, 8)}`;
+    const displayName = worker.name || defaultName;
+    
+    if (displayName.startsWith('*') && displayName.endsWith('*') && displayName.length > 2) {
+      const cleanName = displayName.substring(1, displayName.length - 1);
+      return <RainbowName name={cleanName} textStyle={styles.workerId} />;
+    }
+    
+    return <Text style={styles.workerId}>{displayName}</Text>;
+  };
+
   return (
     <ScrollView 
       style={styles.container}
@@ -93,14 +158,26 @@ export const DashboardScreen = ({ route }) => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Worker Status</Text>
+        <TouchableOpacity 
+          style={styles.sectionHeaderRow} 
+          onPress={() => hasMultipleWorkers && setIsWorkersExpanded(!isWorkersExpanded)}
+          disabled={!hasMultipleWorkers}
+        >
+          <Text style={styles.sectionTitle}>Worker Status</Text>
+          {hasMultipleWorkers && (
+            <View style={styles.expandIconContainer}>
+              {isWorkersExpanded ? <ChevronUp color="#94A3B8" size={20} /> : <ChevronDown color="#94A3B8" size={20} />}
+            </View>
+          )}
+        </TouchableOpacity>
+        
         {workers.length === 0 ? (
           <Text style={styles.emptyText}>No active workers</Text>
         ) : (
-          workers.map(worker => (
+          getDisplayedWorkers().map(worker => (
             <View key={worker.workerId} style={styles.workerCard}>
               <View>
-                <Text style={styles.workerId}>Worker: {worker.workerId.substring(0, 8)}</Text>
+                {renderWorkerName(worker)}
                 <Text style={styles.workerMeta}>{worker.browser} {worker.version}</Text>
               </View>
               <View style={[styles.statusBadge, worker.status === 'online' ? styles.statusOnline : styles.statusOffline]}>
@@ -188,13 +265,21 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
   },
   section: {
-    padding: 20,
+    marginBottom: 24,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   sectionTitle: {
-    color: '#FFF',
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: '#FFF',
+  },
+  expandIconContainer: {
+    padding: 4,
   },
   emptyText: {
     color: '#94A3B8',
