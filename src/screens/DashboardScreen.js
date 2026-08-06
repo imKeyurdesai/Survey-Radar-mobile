@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking, Animated } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
 import { Activity, Database, Users, Clock, ChevronDown, ChevronUp } from 'lucide-react-native';
 
@@ -10,25 +11,22 @@ const RainbowName = ({ name, textStyle }) => {
     Animated.loop(
       Animated.timing(animatedValue, {
         toValue: 1,
-        duration: 3000,
-        useNativeDriver: false,
+        duration: 4000,
+        useNativeDriver: true, // we can use native driver for transform!
       })
     ).start();
   }, [animatedValue]);
 
-  const borderColor = animatedValue.interpolate({
-    inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
-    outputRange: ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#ff0000']
+  const rotateInterpolate = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
   });
 
   return (
-    <Animated.View style={{
-      borderWidth: 2,
-      borderColor,
-      backgroundColor: '#FFF8DC',
-      paddingHorizontal: 8,
-      paddingVertical: 2,
-      borderRadius: 8,
+    <View style={{
+      borderRadius: 10,
+      overflow: 'hidden',
+      padding: 3, // Border size
       alignSelf: 'flex-start',
       marginBottom: 4,
       shadowColor: '#FFD700',
@@ -37,8 +35,31 @@ const RainbowName = ({ name, textStyle }) => {
       shadowRadius: 10,
       elevation: 5
     }}>
-      <Text style={[textStyle, { color: '#B8860B', marginBottom: 0, fontWeight: '900', textShadowColor: 'rgba(255, 215, 0, 0.5)', textShadowOffset: {width: 0, height: 0}, textShadowRadius: 4 }]}>🌟 {name} 🌟</Text>
-    </Animated.View>
+      <Animated.View style={{
+        position: 'absolute',
+        top: 0, left: 0, right: 0, bottom: 0,
+        transform: [
+          { scale: 5 }, // Scale up to cover corners during rotation
+          { rotate: rotateInterpolate }
+        ]
+      }}>
+        <LinearGradient
+          colors={['rgb(72, 147, 226)', 'rgb(58, 234, 61)', 'rgb(226, 118, 118)', 'rgb(72, 147, 226)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ flex: 1 }}
+        />
+      </Animated.View>
+
+      <View style={{
+        backgroundColor: '#4c4c4c',
+        borderRadius: 7,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+      }}>
+        <Text style={[textStyle, { color: '#FFFFFF', padding: 5, marginBottom: 0, fontWeight: '900', textShadowColor: 'rgba(255, 215, 0, 0.5)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }]}>{name} 👑</Text>
+      </View>
+    </View>
   );
 };
 
@@ -91,26 +112,26 @@ export const DashboardScreen = ({ route }) => {
 
   const getBorderColor = (rewardStr, timeStr) => {
     if (!rewardStr || !timeStr) return 'rgba(255,255,255,0.05)';
-    
+
     let rewardValue = 0;
     const rewardMatch = rewardStr.match(/[\d.]+/);
     if (rewardMatch) rewardValue = parseFloat(rewardMatch[0]);
-    
+
     let cents = 0;
     if (rewardStr.includes('$') || rewardStr.includes('£') || rewardStr.includes('€') || rewardStr.includes('.')) {
       cents = rewardValue * 100;
     } else {
       cents = rewardValue;
     }
-    
+
     const timeMatch = timeStr.match(/\d+/);
     if (!timeMatch) return 'rgba(255,255,255,0.05)';
     const minutes = parseInt(timeMatch[0], 10);
-    
+
     if (minutes === 0) return 'rgba(255,255,255,0.05)';
-    
+
     const ratio = cents / minutes;
-    
+
     if (ratio > 2.5) {
       return '#EF4444'; // Red
     } else if (ratio >= 1.5) {
@@ -121,7 +142,7 @@ export const DashboardScreen = ({ route }) => {
   };
 
   const hasMultipleWorkers = workers.length > 1;
-  
+
   const getDisplayedWorkers = () => {
     if (isWorkersExpanded) {
       return workers;
@@ -136,17 +157,17 @@ export const DashboardScreen = ({ route }) => {
   const renderWorkerName = (worker) => {
     const defaultName = `Worker: ${worker.workerId.substring(0, 8)}`;
     const displayName = worker.name || defaultName;
-    
+
     if (displayName.startsWith('*') && displayName.endsWith('*') && displayName.length > 2) {
       const cleanName = displayName.substring(1, displayName.length - 1);
       return <RainbowName name={cleanName} textStyle={styles.workerId} />;
     }
-    
+
     return <Text style={styles.workerId}>{displayName}</Text>;
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10B981" />}
     >
@@ -158,8 +179,8 @@ export const DashboardScreen = ({ route }) => {
       </View>
 
       <View style={styles.section}>
-        <TouchableOpacity 
-          style={styles.sectionHeaderRow} 
+        <TouchableOpacity
+          style={styles.sectionHeaderRow}
           onPress={() => hasMultipleWorkers && setIsWorkersExpanded(!isWorkersExpanded)}
           disabled={!hasMultipleWorkers}
         >
@@ -170,7 +191,7 @@ export const DashboardScreen = ({ route }) => {
             </View>
           )}
         </TouchableOpacity>
-        
+
         {workers.length === 0 ? (
           <Text style={styles.emptyText}>No active workers</Text>
         ) : (
@@ -196,8 +217,8 @@ export const DashboardScreen = ({ route }) => {
           <Text style={styles.emptyText}>No surveys detected yet</Text>
         ) : (
           surveys.map(survey => (
-            <TouchableOpacity 
-              key={survey._id} 
+            <TouchableOpacity
+              key={survey._id}
               style={[styles.surveyCard, { borderColor: getBorderColor(survey.reward, survey.estimatedTime) }]}
               onPress={() => Linking.openURL('https://attapoll.app/').catch(() => console.log('Could not open AttaPoll'))}
             >

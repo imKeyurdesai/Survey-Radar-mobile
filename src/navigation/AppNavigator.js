@@ -4,8 +4,10 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { ProjectsScreen } from '../screens/ProjectsScreen';
 import { DashboardScreen } from '../screens/DashboardScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { useAuth } from '../context/AuthContext';
 import { TouchableOpacity, Text } from 'react-native';
+import { User } from 'lucide-react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,19 +32,24 @@ export const AppNavigator = () => {
           <Stack.Screen 
             name="Projects" 
             component={ProjectsScreen} 
-            options={{ 
+            options={({ navigation }) => ({ 
               title: 'Survey Radar',
               headerRight: () => (
-                <TouchableOpacity onPress={logout}>
-                  <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>Logout</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                  <User color="#FFF" size={24} />
                 </TouchableOpacity>
               )
-            }}
+            })}
           />
           <Stack.Screen 
             name="Dashboard" 
             component={DashboardScreen} 
             options={{ title: 'Project Dashboard' }}
+          />
+          <Stack.Screen 
+            name="Profile" 
+            component={ProfileScreen} 
+            options={{ title: 'Profile Settings' }}
           />
         </>
       ) : (

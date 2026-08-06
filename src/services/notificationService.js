@@ -24,6 +24,24 @@ export async function registerForPushNotificationsAsync() {
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
       });
+
+      const customSounds = [
+        'discord-notification-prank',
+        'fahhhhhhhhhhhhhh',
+        'kar98k',
+        'notification_alert',
+        'samsung-notification-sound-earrape'
+      ];
+
+      for (const sound of customSounds) {
+        await Notifications.setNotificationChannelAsync(`sound-${sound}`, {
+          name: sound,
+          importance: Notifications.AndroidImportance.MAX,
+          sound: `${sound}.mp3`,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
     }
 
     if (Device.isDevice) {

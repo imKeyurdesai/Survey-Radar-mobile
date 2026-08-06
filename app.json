@@ -35,7 +35,18 @@
           "imageWidth": 76
         }
       ],
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/audio/discord-notification-prank.mp3",
+            "./assets/audio/fahhhhhhhhhhhhhh.mp3",
+            "./assets/audio/kar98k.mp3",
+            "./assets/audio/notification_alert.mp3",
+            "./assets/audio/samsung-notification-sound-earrape.mp3"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -66,6 +66,37 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (name, email, notificationSound) => {
+    try {
+      const res = await api.put('/auth/profile', { name, email, notificationSound });
+      const { data } = res.data;
+      await setItemAsync('token', data.token);
+      await setItemAsync('user', JSON.stringify(data));
+      setUser(data);
+      return { success: true };
+    } catch (err) {
+      return { 
+        success: false, 
+        error: err.response?.data?.errors?.[0]?.msg || err.response?.data?.error || 'Profile update failed' 
+      };
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      await api.delete('/auth/profile');
+      await deleteItemAsync('token');
+      await deleteItemAsync('user');
+      setUser(null);
+      return { success: true };
+    } catch (err) {
+      return { 
+        success: false, 
+        error: err.response?.data?.error || 'Failed to delete account' 
+      };
+    }
+  };
+
   const logout = async () => {
     try {
       await deleteItemAsync('token');
@@ -77,7 +108,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
