@@ -23,7 +23,7 @@
       "package": "com.anonymous.mobile"
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -39,18 +39,17 @@
         "expo-notifications",
         {
           "sounds": [
-            "./assets/audio/discord-notification-prank.mp3",
+            "./assets/audio/discord_notification_prank.mp3",
             "./assets/audio/fahhhhhhhhhhhhhh.mp3",
             "./assets/audio/kar98k.mp3",
             "./assets/audio/notification_alert.mp3",
-            "./assets/audio/samsung-notification-sound-earrape.mp3"
+            "./assets/audio/samsung_notification_sound_earrape.mp3"
           ]
         }
       ],
       "expo-image"
     ],
     "experiments": {
-      "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {

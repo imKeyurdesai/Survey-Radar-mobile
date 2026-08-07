@@ -43,8 +43,8 @@ const RainbowName = ({ name, textStyle }) => {
           { rotate: rotateInterpolate }
         ]
       }}>
-        <LinearGradient
-          colors={['rgb(72, 147, 226)', 'rgb(58, 234, 61)', 'rgb(226, 118, 118)', 'rgb(72, 147, 226)']}
+        <LinearGradient 
+          colors={['#0064FF', '#00FF00', '#FF0000', '#0064FF']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ flex: 1 }}

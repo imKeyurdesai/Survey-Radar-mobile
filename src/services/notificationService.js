@@ -26,18 +26,18 @@ export async function registerForPushNotificationsAsync() {
       });
 
       const customSounds = [
-        'discord-notification-prank',
+        'discord_notification_prank',
         'fahhhhhhhhhhhhhh',
         'kar98k',
         'notification_alert',
-        'samsung-notification-sound-earrape'
+        'samsung_notification_sound_earrape'
       ];
 
       for (const sound of customSounds) {
         await Notifications.setNotificationChannelAsync(`sound-${sound}`, {
           name: sound,
           importance: Notifications.AndroidImportance.MAX,
-          sound: `${sound}.mp3`,
+          sound: sound, // Android expects just the resource name without extension
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#FF231F7C',
         });

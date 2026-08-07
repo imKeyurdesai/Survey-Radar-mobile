@@ -16,21 +16,21 @@ export const ProfileScreen = ({ navigation }) => {
 
   const SOUND_OPTIONS = [
     { id: 'default', name: 'Default Sound' },
-    { id: 'discord-notification-prank.mp3', name: 'Discord Prank' },
+    { id: 'discord_notification_prank.mp3', name: 'Discord Prank' },
     { id: 'fahhhhhhhhhhhhhh.mp3', name: 'Fahhhhhhhhhhhhhh' },
     { id: 'kar98k.mp3', name: 'Kar98k' },
     { id: 'notification_alert.mp3', name: 'Standard Alert' },
-    { id: 'samsung-notification-sound-earrape.mp3', name: 'Samsung Ear-rape' }
+    { id: 'samsung_notification_sound_earrape.mp3', name: 'Samsung Ear-rape' }
   ];
 
   // Helper map to require local assets dynamically
   const getAudioSource = (id) => {
     switch(id) {
-      case 'discord-notification-prank.mp3': return require('../../assets/audio/discord-notification-prank.mp3');
+      case 'discord_notification_prank.mp3': return require('../../assets/audio/discord_notification_prank.mp3');
       case 'fahhhhhhhhhhhhhh.mp3': return require('../../assets/audio/fahhhhhhhhhhhhhh.mp3');
       case 'kar98k.mp3': return require('../../assets/audio/kar98k.mp3');
       case 'notification_alert.mp3': return require('../../assets/audio/notification_alert.mp3');
-      case 'samsung-notification-sound-earrape.mp3': return require('../../assets/audio/samsung-notification-sound-earrape.mp3');
+      case 'samsung_notification_sound_earrape.mp3': return require('../../assets/audio/samsung_notification_sound_earrape.mp3');
       default: return null;
     }
   };
