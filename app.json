@@ -49,9 +49,6 @@
       ],
       "expo-image"
     ],
-    "experiments": {
-      "reactCompiler": true
-    },
     "extra": {
       "eas": {
         "projectId": "c83fbbb3-1228-4ff8-b645-6df1a94ddfb0"

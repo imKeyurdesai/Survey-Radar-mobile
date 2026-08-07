@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking, Animated } from 'react-native';
-
 import api from '../services/api';
 import { Activity, Database, Users, Clock, ChevronDown, ChevronUp } from 'lucide-react-native';
+
+const RAINBOW_COLORS = [
+  '#FF0000', '#FF8800', '#FFDD00', '#00FF00',
+  '#0088FF', '#8800FF', '#FF00FF', '#FF0000',
+];
 
 const RainbowName = ({ name, textStyle }) => {
   const animatedValue = React.useRef(new Animated.Value(0)).current;
@@ -10,30 +14,44 @@ const RainbowName = ({ name, textStyle }) => {
   React.useEffect(() => {
     Animated.loop(
       Animated.timing(animatedValue, {
-        toValue: 1,
-        duration: 2000,
+        toValue: RAINBOW_COLORS.length - 1,
+        duration: 4000,
         useNativeDriver: false,
       })
     ).start();
   }, [animatedValue]);
 
-  const borderColorInterpolate = animatedValue.interpolate({
-    inputRange: [0, 0.25, 0.5, 0.75, 1],
-    outputRange: ['#FF0000', '#00FF00', '#0000FF', '#FF00FF', '#FF0000']
+  const borderColor = animatedValue.interpolate({
+    inputRange: RAINBOW_COLORS.map((_, i) => i),
+    outputRange: RAINBOW_COLORS,
   });
 
   return (
     <Animated.View style={{
       borderRadius: 10,
-      borderWidth: 3,
-      borderColor: borderColorInterpolate,
-      backgroundColor: 'grey',
-      paddingHorizontal: 8,
-      paddingVertical: 4,
+      borderWidth: 2.5,
+      borderColor: borderColor,
       alignSelf: 'flex-start',
       marginBottom: 4,
+      backgroundColor: '#3a3a3a',
+      shadowColor: '#FFD700',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.6,
+      shadowRadius: 8,
+      elevation: 5,
     }}>
-      <Text style={[textStyle, { color: '#000000', fontWeight: '900' }]}>{name} 👑</Text>
+      <View style={{
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+      }}>
+        <Text style={[textStyle, {
+          color: '#FFFFFF',
+          fontWeight: '900',
+          textShadowColor: 'rgba(255, 215, 0, 0.5)',
+          textShadowOffset: { width: 0, height: 0 },
+          textShadowRadius: 4,
+        }]}>{name} 👑</Text>
+      </View>
     </Animated.View>
   );
 };
@@ -195,7 +213,7 @@ export const DashboardScreen = ({ route }) => {
             <TouchableOpacity
               key={survey._id}
               style={[styles.surveyCard, { borderColor: getBorderColor(survey.reward, survey.estimatedTime) }]}
-              onPress={() => Linking.openURL('https://earn.attapoll.app/#projects').catch(() => console.log('Could not open AttaPoll'))}
+              onPress={() => Linking.openURL('https://attapoll.app/').catch(() => console.log('Could not open AttaPoll'))}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.surveyTitle}>{survey.title}</Text>
