@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726786833483",
+    "project_id": "attapoll-ef1cb",
+    "storage_bucket": "attapoll-ef1cb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726786833483:android:e6e7dbdd4e79785130e1ce",
+        "android_client_info": {
+          "package_name": "com.anonymous.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB35uO1HC6SMiZOl3ufCT6bOqV6bvOQe7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
