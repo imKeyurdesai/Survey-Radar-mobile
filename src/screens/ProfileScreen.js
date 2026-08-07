@@ -1,8 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Trash2, Save, Play, Square } from 'lucide-react-native';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio';
+
+const SOUND_OPTIONS = [
+  { id: 'default', name: 'Default Sound' },
+  { id: 'discord_notification_prank.mp3', name: 'Discord Prank' },
+  { id: 'fahhhhhhhhhhhhhh.mp3', name: 'Fahhhhhhhhhhhhhh' },
+  { id: 'kar98k.mp3', name: 'Kar98k' },
+  { id: 'notification_alert.mp3', name: 'Standard Alert' },
+  { id: 'samsung_notification_sound_earrape.mp3', name: 'Samsung Ear-rape' }
+];
+
+// Map sound IDs to require() sources (must be static)
+const SOUND_SOURCES = {
+  'discord_notification_prank.mp3': require('../../assets/audio/discord_notification_prank.mp3'),
+  'fahhhhhhhhhhhhhh.mp3': require('../../assets/audio/fahhhhhhhhhhhhhh.mp3'),
+  'kar98k.mp3': require('../../assets/audio/kar98k.mp3'),
+  'notification_alert.mp3': require('../../assets/audio/notification_alert.mp3'),
+  'samsung_notification_sound_earrape.mp3': require('../../assets/audio/samsung_notification_sound_earrape.mp3'),
+};
+
+// Small component to handle audio preview for a single sound option
+const SoundPreviewButton = ({ soundId, isPlaying, onToggle }) => {
+  const source = SOUND_SOURCES[soundId] || null;
+  const player = useAudioPlayer(source);
+
+  const handlePress = useCallback(() => {
+    if (!source) {
+      Alert.alert('Default Sound', 'The default sound depends on your phone settings and cannot be previewed.');
+      return;
+    }
+    if (isPlaying) {
+      player.pause();
+      onToggle(null);
+    } else {
+      player.seekTo(0);
+      player.play();
+      onToggle(soundId);
+    }
+  }, [source, isPlaying, soundId, player, onToggle]);
+
+  // Listen for playback finishing
+  useEffect(() => {
+    if (!player) return;
+    const sub = player.addListener('playbackStatusUpdate', (status) => {
+      if (status.didJustFinish && isPlaying) {
+        onToggle(null);
+      }
+    });
+    return () => sub?.remove?.();
+  }, [player, isPlaying, onToggle]);
+
+  return (
+    <TouchableOpacity style={styles.playButton} onPress={handlePress}>
+      {isPlaying ? (
+        <Square color="#EF4444" size={20} />
+      ) : (
+        <Play color="#10B981" size={20} />
+      )}
+    </TouchableOpacity>
+  );
+};
 
 export const ProfileScreen = ({ navigation }) => {
   const { user, updateProfile, logout, deleteAccount } = useAuth();
@@ -11,67 +71,11 @@ export const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState(user?.email || '');
   const [notificationSound, setNotificationSound] = useState(user?.notificationSound || 'default');
   const [loading, setLoading] = useState(false);
-  const [sound, setSound] = useState();
   const [playingSoundId, setPlayingSoundId] = useState(null);
 
-  const SOUND_OPTIONS = [
-    { id: 'default', name: 'Default Sound' },
-    { id: 'discord_notification_prank.mp3', name: 'Discord Prank' },
-    { id: 'fahhhhhhhhhhhhhh.mp3', name: 'Fahhhhhhhhhhhhhh' },
-    { id: 'kar98k.mp3', name: 'Kar98k' },
-    { id: 'notification_alert.mp3', name: 'Standard Alert' },
-    { id: 'samsung_notification_sound_earrape.mp3', name: 'Samsung Ear-rape' }
-  ];
-
-  // Helper map to require local assets dynamically
-  const getAudioSource = (id) => {
-    switch(id) {
-      case 'discord_notification_prank.mp3': return require('../../assets/audio/discord_notification_prank.mp3');
-      case 'fahhhhhhhhhhhhhh.mp3': return require('../../assets/audio/fahhhhhhhhhhhhhh.mp3');
-      case 'kar98k.mp3': return require('../../assets/audio/kar98k.mp3');
-      case 'notification_alert.mp3': return require('../../assets/audio/notification_alert.mp3');
-      case 'samsung_notification_sound_earrape.mp3': return require('../../assets/audio/samsung_notification_sound_earrape.mp3');
-      default: return null;
-    }
-  };
-
-  useEffect(() => {
-    return sound
-      ? () => {
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, [sound]);
-
-  const playPreview = async (soundId) => {
-    if (playingSoundId === soundId) {
-      if (sound) await sound.stopAsync();
-      setPlayingSoundId(null);
-      return;
-    }
-
-    if (sound) {
-      await sound.unloadAsync();
-    }
-
-    if (soundId === 'default') {
-      Alert.alert('Default Sound', 'The default sound depends on your phone settings and cannot be previewed.');
-      return;
-    }
-
-    const source = getAudioSource(soundId);
-    if (source) {
-      const { sound: newSound } = await Audio.Sound.createAsync(source);
-      setSound(newSound);
-      setPlayingSoundId(soundId);
-      await newSound.playAsync();
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          setPlayingSoundId(null);
-        }
-      });
-    }
-  };
+  const handleTogglePlay = useCallback((soundId) => {
+    setPlayingSoundId(soundId);
+  }, []);
 
   const handleUpdate = async () => {
     if (!name || !email) {
@@ -145,16 +149,11 @@ export const ProfileScreen = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
             
-            <TouchableOpacity 
-              style={styles.playButton} 
-              onPress={() => playPreview(opt.id)}
-            >
-              {playingSoundId === opt.id ? (
-                <Square color="#EF4444" size={20} />
-              ) : (
-                <Play color="#10B981" size={20} />
-              )}
-            </TouchableOpacity>
+            <SoundPreviewButton 
+              soundId={opt.id} 
+              isPlaying={playingSoundId === opt.id} 
+              onToggle={handleTogglePlay} 
+            />
           </View>
         ))}
       </View>
