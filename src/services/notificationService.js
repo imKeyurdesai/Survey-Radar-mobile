@@ -41,10 +41,16 @@ export async function registerForPushNotificationsAsync() {
 
       // Create one channel per custom sound
       for (const sound of CUSTOM_SOUNDS) {
-        await Notifications.setNotificationChannelAsync(`sound-${sound}`, {
+        const channelId = `sound-${sound}`;
+        const soundFile = `${sound}.wav`;
+
+        // Android keeps a channel's sound once it exists, so recreate it to pick up sound changes.
+        await Notifications.deleteNotificationChannelAsync(channelId).catch(() => null);
+
+        await Notifications.setNotificationChannelAsync(channelId, {
           name: `Sound: ${sound}`,
           importance: Notifications.AndroidImportance.MAX,
-          sound: sound, // Android resolves this against res/raw/<name> (no extension)
+          sound: soundFile,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#FF231F7C',
         });
@@ -54,12 +60,12 @@ export async function registerForPushNotificationsAsync() {
     if (Device.isDevice) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      
+
       if (existingStatus !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      
+
       if (finalStatus !== 'granted') {
         console.log('Failed to get push token for push notification!');
         return null;
@@ -73,7 +79,7 @@ export async function registerForPushNotificationsAsync() {
 
       token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       console.log('Expo Push Token:', token);
-      
+
       // Send token to backend
       await api.post('/device/register', {
         token: token,
