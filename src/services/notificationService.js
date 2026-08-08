@@ -13,31 +13,38 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// All custom sound resource names (without extension — Android raw resources don't use extensions)
+const CUSTOM_SOUNDS = [
+  'chinese_bell_song',
+  'fahhhhhhhhhhhhhh',
+  'generic_ka_ching',
+  'iphone_notification',
+  'kar98k',
+  'meccha_chameleon_whistle',
+  'samsung_notification_sound_earrape',
+  'snapchat_message',
+  'superchat',
+];
+
 export async function registerForPushNotificationsAsync() {
   let token;
 
   try {
     if (Platform.OS === 'android') {
+      // Create the default channel
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+        name: 'Default',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
       });
 
-      const customSounds = [
-        'discord_notification_prank',
-        'fahhhhhhhhhhhhhh',
-        'kar98k',
-        'notification_alert',
-        'samsung_notification_sound_earrape'
-      ];
-
-      for (const sound of customSounds) {
+      // Create one channel per custom sound
+      for (const sound of CUSTOM_SOUNDS) {
         await Notifications.setNotificationChannelAsync(`sound-${sound}`, {
-          name: sound,
+          name: `Sound: ${sound}`,
           importance: Notifications.AndroidImportance.MAX,
-          sound: sound, // Android expects just the resource name without extension
+          sound: sound, // Android resolves this against res/raw/<name> (no extension)
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#FF231F7C',
         });
@@ -82,4 +89,3 @@ export async function registerForPushNotificationsAsync() {
 
   return token;
 }
-

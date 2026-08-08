@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking, Animated } from 'react-native';
 import api from '../services/api';
 import { Activity, Database, Users, Clock, ChevronDown, ChevronUp } from 'lucide-react-native';
@@ -9,7 +9,12 @@ const RAINBOW_COLORS = [
 ];
 
 const RainbowName = ({ name, textStyle }) => {
-  const animatedValue = React.useRef(new Animated.Value(0)).current;
+  const [animatedValue] = useState(() => new Animated.Value(0));
+
+  const borderColor = animatedValue.interpolate({
+    inputRange: RAINBOW_COLORS.map((_, i) => i),
+    outputRange: RAINBOW_COLORS,
+  });
 
   React.useEffect(() => {
     Animated.loop(
@@ -20,11 +25,6 @@ const RainbowName = ({ name, textStyle }) => {
       })
     ).start();
   }, [animatedValue]);
-
-  const borderColor = animatedValue.interpolate({
-    inputRange: RAINBOW_COLORS.map((_, i) => i),
-    outputRange: RAINBOW_COLORS,
-  });
 
   return (
     <Animated.View style={{
@@ -60,11 +60,10 @@ export const DashboardScreen = ({ route }) => {
   const { projectId } = route.params;
   const [workers, setWorkers] = useState([]);
   const [surveys, setSurveys] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isWorkersExpanded, setIsWorkersExpanded] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [workersRes, surveysRes] = await Promise.all([
         api.get(`/workers/status/${projectId}`),
@@ -72,19 +71,19 @@ export const DashboardScreen = ({ route }) => {
       ]);
       setWorkers(workersRes.data.data);
       setSurveys(surveysRes.data.data);
-    } catch (err) {
+    } catch (_err) {
       console.log('Failed to fetch dashboard data');
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: initial data load + polling interval
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, [projectId]);
+  }, [fetchData]);
 
   const onRefresh = () => {
     setRefreshing(true);

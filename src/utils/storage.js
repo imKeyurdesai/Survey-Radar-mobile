@@ -7,7 +7,7 @@ export const getItemAsync = async (key) => {
   if (isWeb) {
     try {
       return localStorage.getItem(key);
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }

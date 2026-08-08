@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { getItemAsync } from './../utils/storage';
-import { Platform } from 'react-native';
 
 // Use EXPO_PUBLIC_API_URL for production deployments (set in Expo dashboard or EAS)
 // Fallback to local Wi-Fi IP address for local physical device testing

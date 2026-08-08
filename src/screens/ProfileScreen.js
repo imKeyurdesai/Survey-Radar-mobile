@@ -6,20 +6,28 @@ import { useAudioPlayer } from 'expo-audio';
 
 const SOUND_OPTIONS = [
   { id: 'default', name: 'Default Sound' },
-  { id: 'discord_notification_prank.mp3', name: 'Discord Prank' },
-  { id: 'fahhhhhhhhhhhhhh.mp3', name: 'Fahhhhhhhhhhhhhh' },
-  { id: 'kar98k.mp3', name: 'Kar98k' },
-  { id: 'notification_alert.mp3', name: 'Standard Alert' },
-  { id: 'samsung_notification_sound_earrape.mp3', name: 'Samsung Ear-rape' }
+  { id: 'chinese_bell_song', name: '🔔 Chinese Bell' },
+  { id: 'fahhhhhhhhhhhhhh', name: '😱 Fahhhhhhhhhhhhhh' },
+  { id: 'generic_ka_ching', name: '💰 Ka-Ching' },
+  { id: 'iphone_notification', name: '📱 iPhone Notification' },
+  { id: 'kar98k', name: '🔫 Kar98k' },
+  { id: 'meccha_chameleon_whistle', name: '🎵 Chameleon Whistle' },
+  { id: 'samsung_notification_sound_earrape', name: '📢 Samsung Earrape' },
+  { id: 'snapchat_message', name: '👻 Snapchat Message' },
+  { id: 'superchat', name: '⭐ Superchat' },
 ];
 
 // Map sound IDs to require() sources (must be static)
 const SOUND_SOURCES = {
-  'discord_notification_prank.mp3': require('../../assets/audio/discord_notification_prank.mp3'),
-  'fahhhhhhhhhhhhhh.mp3': require('../../assets/audio/fahhhhhhhhhhhhhh.mp3'),
-  'kar98k.mp3': require('../../assets/audio/kar98k.mp3'),
-  'notification_alert.mp3': require('../../assets/audio/notification_alert.mp3'),
-  'samsung_notification_sound_earrape.mp3': require('../../assets/audio/samsung_notification_sound_earrape.mp3'),
+  'chinese_bell_song': require('../../assets/audio/chinese_bell_song.wav'),
+  'fahhhhhhhhhhhhhh': require('../../assets/audio/fahhhhhhhhhhhhhh.wav'),
+  'generic_ka_ching': require('../../assets/audio/generic_ka_ching.wav'),
+  'iphone_notification': require('../../assets/audio/iphone_notification.wav'),
+  'kar98k': require('../../assets/audio/kar98k.wav'),
+  'meccha_chameleon_whistle': require('../../assets/audio/meccha_chameleon_whistle.wav'),
+  'samsung_notification_sound_earrape': require('../../assets/audio/samsung_notification_sound_earrape.wav'),
+  'snapchat_message': require('../../assets/audio/snapchat_message.wav'),
+  'superchat': require('../../assets/audio/superchat.wav'),
 };
 
 // Small component to handle audio preview for a single sound option

@@ -75,7 +75,7 @@ export const LoginScreen = ({ navigation }) => {
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.linkContainer}>
           <Text style={styles.linkText}>
-            Don't have an account? <Text style={styles.linkTextBold}>Sign up</Text>
+            Don&apos;t have an account? <Text style={styles.linkTextBold}>Sign up</Text>
           </Text>
         </TouchableOpacity>
       </View>

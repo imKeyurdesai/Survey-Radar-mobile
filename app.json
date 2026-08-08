@@ -4,20 +4,18 @@
     "slug": "mobile",
     "version": "1.2.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app-icon.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/app-icon.png"
     },
     "android": {
-      "versionCode": 1,
+      "versionCode": 2,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#0F172A",
+        "foregroundImage": "./assets/images/app-icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.mobile"
@@ -39,11 +37,15 @@
         "expo-notifications",
         {
           "sounds": [
-            "./assets/audio/discord_notification_prank.mp3",
-            "./assets/audio/fahhhhhhhhhhhhhh.mp3",
-            "./assets/audio/kar98k.mp3",
-            "./assets/audio/notification_alert.mp3",
-            "./assets/audio/samsung_notification_sound_earrape.mp3"
+            "./assets/audio/chinese_bell_song.wav",
+            "./assets/audio/fahhhhhhhhhhhhhh.wav",
+            "./assets/audio/generic_ka_ching.wav",
+            "./assets/audio/iphone_notification.wav",
+            "./assets/audio/kar98k.wav",
+            "./assets/audio/meccha_chameleon_whistle.wav",
+            "./assets/audio/samsung_notification_sound_earrape.wav",
+            "./assets/audio/snapchat_message.wav",
+            "./assets/audio/superchat.wav"
           ]
         }
       ],

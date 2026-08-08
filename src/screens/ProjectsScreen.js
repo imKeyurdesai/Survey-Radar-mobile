@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Modal, TextInput, Alert } from 'react-native';
 import api from '../services/api';
 import { ArrowRight, Folder } from 'lucide-react-native';
@@ -10,21 +10,22 @@ export const ProjectsScreen = ({ navigation }) => {
   const [joinModalVisible, setJoinModalVisible] = useState(false);
   const [joinCode, setJoinCode] = useState('');
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const res = await api.get('/projects');
       setProjects(res.data.data || []);
-    } catch (err) {
+    } catch (_err) {
       console.log('Error fetching projects');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: initial data load
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const onRefresh = () => {
     setRefreshing(true);

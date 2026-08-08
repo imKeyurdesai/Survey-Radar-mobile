@@ -6,13 +6,13 @@ import { ProjectsScreen } from '../screens/ProjectsScreen';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { useAuth } from '../context/AuthContext';
-import { TouchableOpacity, Text } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { User } from 'lucide-react-native';
 
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <Stack.Navigator
