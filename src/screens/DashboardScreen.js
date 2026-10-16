@@ -213,7 +213,7 @@ export const DashboardScreen = ({ route }) => {
             <TouchableOpacity
               key={survey._id}
               style={[styles.surveyCard, { borderColor: getBorderColor(survey.reward, survey.estimatedTime) }]}
-              onPress={() => Linking.openURL('https://attapoll.app/').catch(() => console.log('Could not open AttaPoll'))}
+              onPress={() => Linking.openURL('https://earn.attapoll.app/').catch(() => console.log('Could not open AttaPoll'))}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.surveyTitle}>{survey.title}</Text>

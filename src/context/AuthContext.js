@@ -66,9 +66,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateProfile = async (name, email, notificationSound) => {
+  const updateProfile = async (name, email, notificationSound, minNotificationPriority) => {
     try {
-      const res = await api.put('/auth/profile', { name, email, notificationSound });
+      const res = await api.put('/auth/profile', { name, email, notificationSound, minNotificationPriority });
       const { data } = res.data;
       await setItemAsync('token', data.token);
       await setItemAsync('user', JSON.stringify(data));

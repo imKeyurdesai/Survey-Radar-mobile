@@ -1,8 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Trash2, Save, Play, Square } from 'lucide-react-native';
+import { LogOut, Trash2, Save, Play, Square, Bell, BellOff, Flame, Zap, Check } from 'lucide-react-native';
 import { useAudioPlayer } from 'expo-audio';
+
+const PRIORITY_OPTIONS = [
+  {
+    id: 'all',
+    title: 'All Surveys',
+    badge: 'All',
+    description: 'Receive notifications for every new survey detected',
+    color: '#10B981',
+    Icon: Bell,
+  },
+  {
+    id: 'medium',
+    title: 'Medium & High Priority',
+    badge: '≥ 1.5',
+    description: 'Reward / Time ratio ≥ 1.5 cents/min',
+    color: '#EAB308',
+    Icon: Zap,
+  },
+  {
+    id: 'high',
+    title: 'High Priority Only',
+    badge: '> 2.5',
+    description: 'Reward / Time ratio > 2.5 cents/min (Top paying surveys)',
+    color: '#EF4444',
+    Icon: Flame,
+  },
+  {
+    id: 'none',
+    title: 'Muted',
+    badge: 'Off',
+    description: 'Pause all push notifications',
+    color: '#64748B',
+    Icon: BellOff,
+  },
+];
 
 const SOUND_OPTIONS = [
   { id: 'default', name: 'Default Sound' },
@@ -72,12 +107,13 @@ const SoundPreviewButton = ({ soundId, isPlaying, onToggle }) => {
   );
 };
 
-export const ProfileScreen = ({ navigation }) => {
+export const ProfileScreen = () => {
   const { user, updateProfile, logout, deleteAccount } = useAuth();
   
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [notificationSound, setNotificationSound] = useState(user?.notificationSound || 'default');
+  const [minNotificationPriority, setMinNotificationPriority] = useState(user?.minNotificationPriority || 'all');
   const [loading, setLoading] = useState(false);
   const [playingSoundId, setPlayingSoundId] = useState(null);
 
@@ -92,7 +128,7 @@ export const ProfileScreen = ({ navigation }) => {
     }
     
     setLoading(true);
-    const result = await updateProfile(name, email, notificationSound);
+    const result = await updateProfile(name, email, notificationSound, minNotificationPriority);
     setLoading(false);
     
     if (result.success) {
@@ -143,6 +179,48 @@ export const ProfileScreen = ({ navigation }) => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+
+      <Text style={styles.label}>Survey Notification Priority</Text>
+      <Text style={styles.subLabel}>Choose which surveys trigger push notifications</Text>
+      <View style={styles.prioritySelectorContainer}>
+        {PRIORITY_OPTIONS.map((opt) => {
+          const isSelected = minNotificationPriority === opt.id;
+          const OptionIcon = opt.Icon;
+          return (
+            <TouchableOpacity 
+              key={opt.id} 
+              style={[styles.priorityOption, isSelected && styles.priorityOptionSelected]} 
+              onPress={() => setMinNotificationPriority(opt.id)}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.priorityIconCircle, { backgroundColor: `${opt.color}20` }]}>
+                <OptionIcon color={opt.color} size={18} />
+              </View>
+
+              <View style={styles.priorityTextContainer}>
+                <View style={styles.priorityTitleRow}>
+                  <Text style={[styles.priorityTitle, isSelected && styles.priorityTitleSelected]}>
+                    {opt.title}
+                  </Text>
+                  <View style={[styles.priorityBadge, { backgroundColor: `${opt.color}25` }]}>
+                    <Text style={[styles.priorityBadgeText, { color: opt.color }]}>
+                      {opt.badge}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.priorityDesc}>{opt.description}</Text>
+              </View>
+
+              <View style={[
+                styles.radioCircle,
+                isSelected && { borderColor: opt.color, backgroundColor: opt.color }
+              ]}>
+                {isSelected && <Check color="#FFF" size={12} strokeWidth={3} />}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
 
       <Text style={styles.label}>Notification Sound</Text>
       <View style={styles.soundSelectorContainer}>
@@ -207,6 +285,76 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
     marginTop: 16,
+  },
+  subLabel: {
+    color: '#64748B',
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  prioritySelectorContainer: {
+    marginBottom: 8,
+  },
+  priorityOption: {
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  priorityOptionSelected: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  priorityIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  priorityTextContainer: {
+    flex: 1,
+    marginRight: 8,
+  },
+  priorityTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  priorityTitle: {
+    color: '#94A3B8',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 8,
+  },
+  priorityTitleSelected: {
+    color: '#FFF',
+  },
+  priorityBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  priorityBadgeText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  priorityDesc: {
+    color: '#64748B',
+    fontSize: 12,
+  },
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   input: {
     backgroundColor: '#1E293B',
